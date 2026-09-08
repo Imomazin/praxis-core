@@ -31,7 +31,20 @@ export function createInitialState() {
     },
 
     history: [],
+    decisions: [],
   };
+}
+
+// A simple 0-100 performance score derived from the current state. Used to
+// persist a comparable score on each simulation run.
+export function computeScore(state) {
+  const cashScore = Math.min(1, Math.max(0, state.finance.cash / 2000000));
+  const shareScore = Math.min(1, state.market.marketShare);
+  const qualityScore = Math.min(1, state.operations.qualityLevel / 2);
+  const complianceScore = Math.min(1, state.regulation.compliancePosture / 2);
+  const blended =
+    cashScore * 0.4 + shareScore * 0.3 + qualityScore * 0.2 + complianceScore * 0.1;
+  return Math.round(blended * 100);
 }
 
 export function advanceTime(state) {

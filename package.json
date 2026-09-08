@@ -1,0 +1,22 @@
+{
+  "name": "praxis-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Praxis - leadership simulation platform (static frontend + Vercel serverless API backed by Neon PostgreSQL)",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "migrate": "node ./scripts/migrate.js",
+    "seed": "node ./scripts/seed.js",
+    "db:setup": "npm run migrate && npm run seed"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.6.0",
+    "ws": "^8.18.0"
+  }
+}

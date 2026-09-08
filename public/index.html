@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Praxis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --violet: #7c3aed;
+        --violet-dark: #5b21b6;
+        --ink: #1e1b2e;
+        --muted: #6b7280;
+        --line: rgba(124, 58, 237, 0.18);
+        --card: rgba(255, 255, 255, 0.92);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(245, 240, 255, 0.85)),
+          url("/assets/hero-abstract-strategy-bg.png");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      a { color: var(--violet); }
+      .brand { font-weight: 800; letter-spacing: 2px; color: var(--violet); }
+      button {
+        font: inherit; cursor: pointer; border: none; border-radius: 10px;
+        padding: 10px 16px; background: var(--violet); color: #fff; font-weight: 600;
+      }
+      button.secondary { background: transparent; color: var(--violet); border: 1px solid var(--line); }
+      button:disabled { opacity: 0.5; cursor: default; }
+      input, select {
+        font: inherit; width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+        border-radius: 10px; background: #fff; margin-top: 4px;
+      }
+      label { display: block; font-size: 13px; color: var(--muted); margin-top: 12px; }
+      .card {
+        background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+        padding: 20px; box-shadow: 0 12px 40px rgba(91, 33, 182, 0.08);
+      }
+      .msg { margin-top: 12px; font-size: 14px; min-height: 18px; }
+      .msg.error { color: #b91c1c; }
+      .msg.ok { color: #15803d; }
+
+      /* Auth */
+      #auth-view { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+      #auth-view .card { width: 100%; max-width: 400px; }
+      #auth-view h1 { font-size: 48px; margin: 0 0 4px; }
+      .tabs { display: flex; gap: 8px; margin: 16px 0; }
+      .tabs button { flex: 1; }
+
+      /* App */
+      #app-view { max-width: 1080px; margin: 0 auto; padding: 24px; }
+      header.app {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 0; margin-bottom: 16px;
+      }
+      header.app h1 { font-size: 28px; margin: 0; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+      .sim h3 { margin: 0 0 6px; font-size: 17px; }
+      .sim .cat { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--violet); }
+      .sim p { color: var(--muted); font-size: 14px; }
+      .section-title { margin: 28px 0 12px; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+      .metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
+      .metric { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+      .metric .k { font-size: 12px; color: var(--muted); }
+      .metric .v { font-size: 18px; font-weight: 700; }
+      .levers label { display: block; }
+      .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <!-- AUTH -->
+    <section id="auth-view">
+      <div class="card">
+        <h1 class="brand">PRAXIS</h1>
+        <p style="color: var(--muted); margin-top: 0">Leadership simulation platform</p>
+        <div class="tabs">
+          <button id="tab-login">Sign in</button>
+          <button id="tab-register" class="secondary">Create account</button>
+        </div>
+
+        <form id="login-form">
+          <label>Email<input type="email" name="email" autocomplete="email" required /></label>
+          <label>Password<input type="password" name="password" autocomplete="current-password" required /></label>
+          <div style="margin-top: 16px"><button type="submit" style="width: 100%">Sign in</button></div>
+        </form>
+
+        <form id="register-form" class="hidden">
+          <label>Full name<input type="text" name="fullName" autocomplete="name" /></label>
+          <label>Email<input type="email" name="email" autocomplete="email" required /></label>
+          <label>Password (min 8 chars)<input type="password" name="password" autocomplete="new-password" required /></label>
+          <label>Organisation (optional)<input type="text" name="organisationName" placeholder="Creating one makes you its admin" /></label>
+          <div style="margin-top: 16px"><button type="submit" style="width: 100%">Create account</button></div>
+        </form>
+
+        <div id="auth-msg" class="msg"></div>
+      </div>
+    </section>
+
+    <!-- APP -->
+    <section id="app-view" class="hidden">
+      <header class="app">
+        <h1 class="brand">PRAXIS</h1>
+        <div class="row">
+          <span id="who" style="color: var(--muted)"></span>
+          <button id="logout" class="secondary">Sign out</button>
+        </div>
+      </header>
+
+      <div id="player" class="card hidden" style="margin-bottom: 20px"></div>
+
+      <div class="section-title">Simulations</div>
+      <div id="sims" class="grid"></div>
+
+      <div class="section-title">Your runs</div>
+      <div class="card"><table id="runs"><tbody></tbody></table></div>
+
+      <div id="app-msg" class="msg"></div>
+    </section>
+
+    <script>
+      const $ = (sel) => document.querySelector(sel);
+      const api = async (path, opts = {}) => {
+        const res = await fetch(path, {
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          ...opts,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+        return data;
+      };
+      const setMsg = (el, text, kind = '') => { el.textContent = text; el.className = 'msg ' + kind; };
+
+      // ---- Auth view ----
+      $('#tab-login').onclick = () => switchTab('login');
+      $('#tab-register').onclick = () => switchTab('register');
+      function switchTab(which) {
+        const login = which === 'login';
+        $('#login-form').classList.toggle('hidden', !login);
+        $('#register-form').classList.toggle('hidden', login);
+        $('#tab-login').className = login ? '' : 'secondary';
+        $('#tab-register').className = login ? 'secondary' : '';
+        setMsg($('#auth-msg'), '');
+      }
+
+      $('#login-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        try {
+          await api('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email: f.email.value, password: f.password.value }),
+          });
+          await boot();
+        } catch (err) { setMsg($('#auth-msg'), err.message, 'error'); }
+      };
+
+      $('#register-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        try {
+          await api('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({
+              fullName: f.fullName.value,
+              email: f.email.value,
+              password: f.password.value,
+              organisationName: f.organisationName.value || null,
+            }),
+          });
+          await boot();
+        } catch (err) { setMsg($('#auth-msg'), err.message, 'error'); }
+      };
+
+      // ---- App view ----
+      $('#logout').onclick = async () => {
+        try { await api('/api/auth/logout', { method: 'POST' }); } catch {}
+        showAuth();
+      };
+
+      function showAuth() {
+        $('#app-view').classList.add('hidden');
+        $('#auth-view').classList.remove('hidden');
+      }
+      function showApp() {
+        $('#auth-view').classList.add('hidden');
+        $('#app-view').classList.remove('hidden');
+      }
+
+      async function loadSimulations() {
+        const { simulations } = await api('/api/simulations');
+        $('#sims').innerHTML = simulations
+          .map(
+            (s) => `
+          <div class="card sim">
+            <div class="cat">${s.category || ''}</div>
+            <h3>${s.name}</h3>
+            <p>${s.description || ''}</p>
+            <button data-slug="${s.slug}">Start run</button>
+          </div>`
+          )
+          .join('');
+        $('#sims').querySelectorAll('button[data-slug]').forEach((btn) => {
+          btn.onclick = () => startRun(btn.dataset.slug);
+        });
+      }
+
+      async function loadRuns() {
+        const { runs } = await api('/api/runs');
+        const rows = runs
+          .map(
+            (r) => `
+          <tr>
+            <td>${r.simulation_name}</td>
+            <td>Round ${r.current_round}</td>
+            <td>Score ${r.score ?? '-'}</td>
+            <td>${r.status}</td>
+            <td><button class="secondary" data-run="${r.id}">Open</button></td>
+          </tr>`
+          )
+          .join('');
+        $('#runs').querySelector('tbody').innerHTML =
+          rows || '<tr><td style="color:var(--muted)">No runs yet — start a simulation above.</td></tr>';
+        $('#runs').querySelectorAll('button[data-run]').forEach((btn) => {
+          btn.onclick = () => openRun(btn.dataset.run);
+        });
+      }
+
+      async function startRun(slug) {
+        try {
+          const { run } = await api('/api/runs', {
+            method: 'POST',
+            body: JSON.stringify({ simulationSlug: slug }),
+          });
+          await loadRuns();
+          renderPlayer(run);
+        } catch (err) { setMsg($('#app-msg'), err.message, 'error'); }
+      }
+
+      async function openRun(id) {
+        try {
+          const { run } = await api('/api/run?id=' + encodeURIComponent(id));
+          renderPlayer(run);
+        } catch (err) { setMsg($('#app-msg'), err.message, 'error'); }
+      }
+
+      function renderPlayer(run) {
+        const s = typeof run.state === 'string' ? JSON.parse(run.state) : run.state;
+        const el = $('#player');
+        el.classList.remove('hidden');
+        const money = (n) => '$' + Math.round(n).toLocaleString();
+        el.innerHTML = `
+          <div class="row" style="justify-content: space-between">
+            <h2 style="margin:0">${run.simulation_name} — Round ${run.current_round}</h2>
+            <span style="color:var(--muted)">Score ${run.score ?? '-'}</span>
+          </div>
+          <div class="metrics">
+            <div class="metric"><div class="k">Cash</div><div class="v">${money(s.finance.cash)}</div></div>
+            <div class="metric"><div class="k">Profit</div><div class="v">${money(s.finance.profit)}</div></div>
+            <div class="metric"><div class="k">Market share</div><div class="v">${(s.market.marketShare * 100).toFixed(1)}%</div></div>
+            <div class="metric"><div class="k">Demand</div><div class="v">${s.market.demand.toFixed(2)}</div></div>
+            <div class="metric"><div class="k">Quality</div><div class="v">${s.operations.qualityLevel.toFixed(2)}</div></div>
+            <div class="metric"><div class="k">Compliance</div><div class="v">${s.regulation.compliancePosture.toFixed(2)}</div></div>
+          </div>
+          <div class="levers">
+            ${lever('pricing', 'Pricing')}
+            ${lever('operationsInvestment', 'Operations investment')}
+            ${lever('marketing', 'Marketing')}
+            ${lever('compliance', 'Compliance')}
+          </div>
+          <div class="row" style="margin-top:14px">
+            <button id="decide-btn" data-run="${run.id}">Apply decisions & advance</button>
+            <button id="advance-btn" class="secondary" data-run="${run.id}">Advance without decisions</button>
+          </div>`;
+        el.querySelectorAll('input[type=range]').forEach((r) => {
+          const out = el.querySelector('#' + r.name + '-out');
+          r.oninput = () => (out.textContent = r.value);
+        });
+        $('#decide-btn').onclick = () => submitDecision(run.id, el);
+        $('#advance-btn').onclick = () => advanceRun(run.id);
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function lever(name, label) {
+        return `<label>${label}: <span id="${name}-out">0</span>
+          <input type="range" name="${name}" min="-1" max="1" step="0.1" value="0" /></label>`;
+      }
+
+      async function submitDecision(runId, el) {
+        const decisions = {};
+        el.querySelectorAll('input[type=range]').forEach((r) => (decisions[r.name] = Number(r.value)));
+        try {
+          const { run } = await api('/api/decide', {
+            method: 'POST',
+            body: JSON.stringify({ runId, decisions }),
+          });
+          await loadRuns();
+          renderPlayer(run);
+        } catch (err) { setMsg($('#app-msg'), err.message, 'error'); }
+      }
+
+      async function advanceRun(runId) {
+        try {
+          const { run } = await api('/api/advance', {
+            method: 'POST',
+            body: JSON.stringify({ runId }),
+          });
+          await loadRuns();
+          renderPlayer(run);
+        } catch (err) { setMsg($('#app-msg'), err.message, 'error'); }
+      }
+
+      // ---- Boot ----
+      async function boot() {
+        try {
+          const { user } = await api('/api/auth/me');
+          $('#who').textContent = user.fullName || user.email;
+          showApp();
+          await Promise.all([loadSimulations(), loadRuns()]);
+        } catch {
+          showAuth();
+        }
+      }
+      switchTab('login');
+      boot();
+    </script>
+  </body>
+</html>
